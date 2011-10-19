@@ -1,0 +1,123 @@
+Balbec
+
+Nagios visualization tool.
+
+2011 Magnus Kulke
+
+Requirements:
+
+- nagios
+- python 2.4+
+- python-lxml
+
+Optional (When running Balbec on an apache server):
+
+- mod-wsgi for apache (when using apache, configuration example in "apache/")
+
+Optional (When Balbec is not installed on the Nagios host):
+
+- ndo2db with mysql (see the documentation included in ndoutils on how to set 
+  up NDO)
+- python-mysql
+
+Installation:
+
+- Standalone:
+
+ - Move all files and directories to "/opt/balbec".	
+ - Create a "balbec" link to the "src/" directory 
+   ("ln -s /opt/balbec/src /opt/balbec/balbec").
+ - Ensure the "balbec-server.py" script is executable 
+   ("chmod +x /opt/balbec/balbec-server.py").
+ - Run "balbec-server.py" in "/opt/balbec" 
+   ("cd /opt/balbec && python /opt/balbec/balbec-server.py"). 
+   The default port for the server is 8100. To make the server listen on another
+   port use the "-p" switch.
+ - Also you can use the included init script:
+
+   cd /opt/balbec
+   cp init-script.sh /etc/init.d/balbec
+   chmod +x /etc/init.d/balbec
+   chkconfig balbec on
+   service balbec start
+
+- If you want to configure the port for the init script add a file 
+  "/etc/sysconfig/balbec" and set the "BALBEC_PORT" variable there:
+
+  echo "BALBEC_PORT=8102" > /etc/sysconfig/balbec
+
+- Apache:
+
+ - If not yet present add a wsgi option "WSGIPythonPath /opt/wsgi" to the apache
+   configuration.
+ - Create a "balbec" link to the "src/" directory in your wsgi directory 
+   ("ln -s /opt/balbec/src /opt/wsgi/balbec").
+ - Move all files in "src/" to "/opt/wsgi/balbec".
+ - Move "balbec.wsgi", "config.xml", "xslt/" & "schema/" to "/opt/balbec".
+ - Adjust configuration in "config.xml".
+
+Configuration:
+
+- The configuration is defined as xml in "/opt/balbec/config.xml".
+- Notes for the mk livestatus support 
+  (http://mathias-kettner.de/checkmk_livestatus.html):
+  The livestatus socket is created with 0660 rights, with nagios user and group
+  id. Your webserver/balbec might not be allowed to use the socket. A solution
+  is to create a special dir for the socket, owned by the group of your 
+  webserver/balbec and by the nagios user and then set the setgid bit on it 
+  (the livestatus documentation mentions the sticky bit, but this is wrong).
+
+  mkdir livestatus
+  chown nagios:www livestatus
+  chmod +s livestatus
+  
+  The socket, when created within that dir, is created with the 
+  balbec/webserver group id and balbec can use it.
+- There is an example config file included in the distribution.
+- The configuration consists of at least one map holding a combination of 
+  several host- or servicegroups.
+- A certain combination of displayed hosts can be defined as a precise logical 
+  expression. Host- and servicegroups can be combined using "and", "not", and 
+  "or" tags.
+- Logical operations appear as tags ("<and>...</and>", "<not>...</not>", 
+  "<or>...</or>") and can be nested. Several hostgroup entries within a node are
+  combined by an implicit "or"
+  ("<hostgroup>...<hostgroup/><hostgroup>...<hostgroup/>" is the same as 
+  "<or><hostgroup>...<hostgroup/></or><or><hostgroup>...<hostgroup/></or>").
+- To hide host- or servicegroups which serve only for filtering purposes the 
+  "show" attribute of a hostgroup has to be set to "false".
+
+Example: 
+
+Show all hosts in hostgroups "Level 1" and "Level 2" which appear in hostgroup 
+"Section A". "Level 2" hosts which are in hostgroup "Windows" should be omitted.
+Also show the servicegroup "HD Space".
+
+<map name="mymap">
+  <hostgroup>Level 1</hostgroup>
+  <or>
+    <hostgroup>Level 2</hostgroup>
+    <not>
+      <hostgroup show="false">Windows</hostgroup>
+    </not>
+  </or>
+  <and>
+    <hostgroup show="false">Section A</hostgroup>
+  </and>
+  <servicegroup>HD Space</servicegroup>
+</map>
+
+Usage:
+
+Use the browser to view the maps in html ("Accept: text/html" in the header) or
+use xml for further processing:
+
+curl -s http://balbec
+
+Legacy configuration:
+
+Legacy "config.xml" files (pre v1.3) are supported. Also you can convert them to
+the new format by running the supplied "update-config.py" script:
+
+cd /opt/balbec
+python ./update-config.py xslt/old_config.xsl old_config.xml > new_config.xml

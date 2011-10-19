@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<balbec config_version="1">
+	<nagios>
+        <!-- define either ndo2db *or* nagios files *or* livestatus as data source -->
+	    <!--<ndo2db>
+		    <database>nagios</database>
+		    <hostname>mysql.bes-intern.com</hostname>
+		    <username>nagios</username>
+	    </ndo2db>-->
+	    <!--<livestatus>
+            <socket_path>/opt/nagios/var/rw/livestatus/live</socket_path>
+        </livestatus>-->
+        <files>
+            <object_file>/opt/nagios/var/objects.cache</object_file>
+            <status_file>/opt/nagios/var/status.dat</status_file>
+        </files>
+		<url_prefix>http://nagios/nagios/cgi-bin/status.cgi?host=</url_prefix>
+	</nagios>
+	<map name="infrastructure">
+	    <hostgroup>pile</hostgroup>
+	    <or>
+		    <hostgroup>cabinet-7</hostgroup>
+		    <hostgroup>cabinet-6</hostgroup>
+		    <hostgroup>cabinet-5</hostgroup>
+		    <hostgroup>cabinet-4</hostgroup>
+		    <hostgroup>cabinet-3</hostgroup>
+		    <hostgroup>cabinet-2</hostgroup>
+		    <hostgroup>cabinet-1</hostgroup>
+		    <hostgroup>vm</hostgroup>
+		    <hostgroup>external</hostgroup>
+		    <and>
+		        <hostgroup show="false">infrastructure</hostgroup>
+		        <hostgroup show="false">infrastructure_misc</hostgroup>
+		    </and>
+        </or>
+        <servicegroup>hd space</servicegroup>
+	</map>
+	<map name="demo">
+		<hostgroup>cabinet-7</hostgroup>
+		<hostgroup>cabinet-6</hostgroup>
+		<hostgroup>cabinet-5</hostgroup>
+		<hostgroup>cabinet-4</hostgroup>
+		<hostgroup>cabinet-3</hostgroup>
+		<hostgroup>cabinet-2</hostgroup>
+		<hostgroup>cabinet-1</hostgroup>
+		<hostgroup>pile</hostgroup>
+		<hostgroup>vm</hostgroup>
+		<hostgroup>external</hostgroup>
+		<and>
+		    <hostgroup show="false">demo</hostgroup>
+		</and>
+    </map>
+	<map name="other">
+		<hostgroup>cabinet-7</hostgroup>
+		<hostgroup>cabinet-6</hostgroup>
+		<hostgroup>cabinet-5</hostgroup>
+		<hostgroup>cabinet-4</hostgroup>
+		<hostgroup>cabinet-3</hostgroup>
+		<hostgroup>cabinet-2</hostgroup>
+		<hostgroup>cabinet-1</hostgroup>
+		<hostgroup>pile</hostgroup>
+		<hostgroup>vm</hostgroup>
+		<hostgroup>external</hostgroup>
+		<not>
+            <hostgroup show="false">infrastructure</hostgroup>
+            <hostgroup show="false">infrastructure_misc</hostgroup>
+            <hostgroup show="false">demo</hostgroup>
+		</not>
+	</map>
+</balbec>

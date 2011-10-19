@@ -1,0 +1,21 @@
+v1.4
+
+- Added mk livestatus as backend option.
+
+v1.3
+
+- Enhanced configuration options.
+- Servicegroup support.
+- Added option to run as standalone server.
+
+v1.2
+
+- Parsing nagios files optimized (several seconds => 15ms).  
+
+v1.1:
+
+- Added file backend, ndo not needed anymore.
+
+v1.0:
+
+- Initial release.

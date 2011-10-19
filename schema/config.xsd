@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+    <xsd:complexType name="files">
+        <xsd:sequence>
+            <xsd:element name="object_file" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="status_file" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="livestatus">
+        <xsd:sequence>
+            <xsd:element name="socket_path" type="xsd:string" minOccurs="1"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:simpleType name="version_number">
+        <xsd:restriction base="xsd:integer">
+            <xsd:minInclusive value="1"/>
+            <xsd:maxInclusive value="1"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="ndo2db">
+        <xsd:sequence>
+            <xsd:element name="database" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="hostname" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="username" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="password" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="prefix" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+	<xsd:complexType name="nagios">
+		<xsd:sequence>
+            <xsd:choice>
+			    <xsd:element name="files" type="files" minOccurs="1"/>
+                <xsd:element name="ndo2db" type="ndo2db" minOccurs="1"/>
+                <xsd:element name="livestatus" type="livestatus" minOccurs="1"/>
+            </xsd:choice>
+			<xsd:element name="url_prefix" type="xsd:string" minOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+    <xsd:complexType name="group" mixed="true">
+        <xsd:attribute name="show" type="xsd:string"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="objects_and_operators">
+        <xsd:choice maxOccurs="unbounded" minOccurs="1">
+            <xsd:element name="hostgroup" type="group"/>
+            <xsd:element name="servicegroup" type="group"/>
+            <xsd:element name="and" type="objects_and_operators"/>
+            <xsd:element name="not" type="objects_and_operators"/>
+            <xsd:element name="or" type="objects_and_operators"/>
+        </xsd:choice>
+    </xsd:complexType>
+
+    <xsd:complexType name="map">
+        <xsd:choice maxOccurs="unbounded" minOccurs="1">
+            <xsd:element name="hostgroup" type="group"/>
+            <xsd:element name="servicegroup" type="group"/>
+            <xsd:element name="and" type="objects_and_operators"/>
+            <xsd:element name="not" type="objects_and_operators"/>
+            <xsd:element name="or" type="objects_and_operators"/>
+        </xsd:choice>
+        <xsd:attribute name="name" type="xsd:string" use="required"/>
+    </xsd:complexType>
+
+    <xsd:element name="balbec">
+        <xsd:complexType mixed="true">
+            <xsd:sequence>
+                <xsd:element name="nagios" type="nagios"/>
+                <xsd:element name="map" type="map" minOccurs="1" maxOccurs="unbounded"/>
+            </xsd:sequence>
+             <xsd:attribute name="config_version" type="version_number"/>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>
