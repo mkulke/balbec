@@ -1,3 +1,7 @@
+v1.5
+
+- Fixed color code order: error,warning,unknown.
+
 v1.4
 
 - Added mk livestatus as backend option.

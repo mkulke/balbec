@@ -2,7 +2,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<xsl:variable name="url_prefix">http://nagios/nagios/cgi-bin/status.cgi?host=</xsl:variable>
 	<xsl:template match="/">
-		<html><head><title>Balbec v1.4</title><META HTTP-EQUIV="refresh" CONTENT="120;URL=/"/></head>
+		<html><head><title>Balbec v1.5</title><META HTTP-EQUIV="refresh" CONTENT="120;URL=/"/></head>
 			<body onload="toggleMap('test')">
 				<xsl:attribute name="onload">toggleMap('<xsl:value-of select="/nagios/map[1]/@name"/>')</xsl:attribute>
 				<script type="text/javascript">
@@ -184,28 +184,31 @@
 	</xsl:template>
 	<xsl:template name="color_max_problem">
         <xsl:param name="values"/>
-        <xsl:variable name="max">
+        <xsl:variable name="unknown_found">
             <xsl:for-each select="$values">
-                <xsl:sort data-type="number" order="descending"/>
-                <xsl:if test="position()=1">
-                    <xsl:copy-of select="."/>
-                </xsl:if>
+                <xsl:if test=".=3">true</xsl:if>    
             </xsl:for-each>
         </xsl:variable>
-        <xsl:choose>
-            <xsl:when test="$max='1'">
-                <xsl:attribute name="style">background:#ffff00;font-family:monospace;</xsl:attribute>
-            </xsl:when>	
-            <xsl:when test="$max='2'">
-                <xsl:attribute name="style">background:#ff0000;font-family:monospace;</xsl:attribute>
-            </xsl:when>
-            <xsl:when test="$max='3'">
-                <xsl:attribute name="style">background:#999999;font-family:monospace;</xsl:attribute>
-            </xsl:when>
-			<xsl:otherwise>
-				<xsl:attribute name="style">font-family:monospace;</xsl:attribute>
-			</xsl:otherwise>
-        </xsl:choose>
+        <xsl:variable name="warning_found">
+            <xsl:for-each select="$values">
+                <xsl:if test=".=1">true</xsl:if>    
+            </xsl:for-each>
+        </xsl:variable>
+        <xsl:variable name="error_found">
+            <xsl:for-each select="$values">
+                <xsl:if test=".=2">true</xsl:if>    
+            </xsl:for-each>
+        </xsl:variable>
+        <xsl:attribute name="style">font-family:monospace;</xsl:attribute>
+        <xsl:if test="$unknown_found='true'">
+            <xsl:attribute name="style">background:#999999;font-family:monospace;</xsl:attribute>
+        </xsl:if>
+        <xsl:if test="$warning_found='true'">
+            <xsl:attribute name="style">background:#ffff00;font-family:monospace;</xsl:attribute>
+        </xsl:if>
+        <xsl:if test="$error_found='true'">
+            <xsl:attribute name="style">background:#ff0000;font-family:monospace;</xsl:attribute>
+        </xsl:if>
     </xsl:template>
 	<xsl:template name="hostgroup_header" match="host">
 		<xsl:choose>
