@@ -183,22 +183,9 @@
 		</html>
 	</xsl:template>
 	<xsl:template name="color_max_problem">
-        <xsl:param name="values"/>
-        <xsl:variable name="unknown_found">
-            <xsl:for-each select="$values">
-                <xsl:if test=".=3">true</xsl:if>    
-            </xsl:for-each>
-        </xsl:variable>
-        <xsl:variable name="warning_found">
-            <xsl:for-each select="$values">
-                <xsl:if test=".=1">true</xsl:if>    
-            </xsl:for-each>
-        </xsl:variable>
-        <xsl:variable name="error_found">
-            <xsl:for-each select="$values">
-                <xsl:if test=".=2">true</xsl:if>    
-            </xsl:for-each>
-        </xsl:variable>
+        <xsl:variable name="unknown_found" select="count(service/status/code[. = 3]) &gt; 0"/>
+        <xsl:variable name="warning_found" select="count(service/status/code[. = 1]) &gt; 0"/>
+        <xsl:variable name="error_found" select="count(service/status/code[. = 2]) &gt; 0"/>
         <xsl:attribute name="style">font-family:monospace;</xsl:attribute>
         <xsl:if test="$unknown_found='true'">
             <xsl:attribute name="style">background:#999999;font-family:monospace;</xsl:attribute>
@@ -213,9 +200,7 @@
 	<xsl:template name="hostgroup_header" match="host">
 		<xsl:choose>
 			<xsl:when test="count(./service) &gt; 0">
-			    <xsl:call-template name="color_max_problem">
-	                <xsl:with-param name="values" select="./service/status/code"/>
-	            </xsl:call-template>
+                <xsl:call-template name="color_max_problem"/>
 				<xsl:attribute name="onclick">toggleServices('<xsl:value-of select="../../@name"/>.<xsl:value-of select="../@name"/>.<xsl:value-of select="@name"/>')</xsl:attribute>
 				<xsl:attribute name="onmouseover">this.style.cursor='pointer';</xsl:attribute>
 				<xsl:attribute name="id"><xsl:value-of select="../../@name"/>.<xsl:value-of select="../@name"/>.<xsl:value-of select="@name"/>.toggler</xsl:attribute>
@@ -237,39 +222,30 @@
 		</xsl:choose>
 	</xsl:template>
     <xsl:template name="print_max_problem">
-        <xsl:param name="values"/>
-        <xsl:variable name="max">
-            <xsl:for-each select="$values">
-                <xsl:sort data-type="number" order="descending"/>
-                <xsl:if test="position()=1">
-                    <xsl:copy-of select="."/>
-                </xsl:if>
-            </xsl:for-each>
-        </xsl:variable>
-        <xsl:choose>
-            <xsl:when test="$max='0'">
-                <xsl:attribute name="style">background:#00ff00;</xsl:attribute>
-            </xsl:when>	
-            <xsl:when test="$max='1'">
-                <xsl:attribute name="style">background:#ffff00;</xsl:attribute>
-            </xsl:when>	
-            <xsl:when test="$max='2'">
-                <xsl:attribute name="style">background:#ff0000;</xsl:attribute>
-            </xsl:when>
-            <xsl:when test="$max='3'">
-                <xsl:attribute name="style">background:#999999;</xsl:attribute>
-            </xsl:when>
-        </xsl:choose> 
-        <xsl:for-each select="$values">
-            <xsl:sort data-type="number" order="descending"/>
-            <xsl:if test="position()=1">
-                <xsl:value-of select="../text"/>
-            </xsl:if>
-        </xsl:for-each>
+        <xsl:variable name="unknown_found" select="count(service/status/code[. = 3]) &gt; 0"/>
+        <xsl:variable name="warning_found" select="count(service/status/code[. = 1]) &gt; 0"/>
+        <xsl:variable name="error_found" select="count(service/status/code[. = 2]) &gt; 0"/>
+        <xsl:attribute name="style">font-family:monospace;</xsl:attribute>
+        <xsl:if test="$unknown_found='true'">
+            <xsl:attribute name="style">background:#999999;font-family:monospace;</xsl:attribute>
+            <xsl:value-of select="service/status/code[. = 3]"/>
+        </xsl:if>
+        <xsl:if test="$warning_found='true'">
+            <xsl:attribute name="style">background:#ffff00;font-family:monospace;</xsl:attribute>
+            <xsl:value-of select="service/status/code[. = 3]"/>
+        </xsl:if>
+        <xsl:if test="$error_found='true'">
+            <xsl:attribute name="style">background:#ff0000;font-family:monospace;</xsl:attribute>
+            <xsl:value-of select="service/status/code[. = 3]"/>
+        </xsl:if>
+        <xsl:if test="not(($unknown_found) or ($error_found) or ($warning_found))">
+            <xsl:attribute name="style">background:#00ff00;</xsl:attribute>
+            <xsl:value-of select="service/status/text"/>
+        </xsl:if>
     </xsl:template>
 	<xsl:template name="servicegroup_header_two" match="host">
 	    <xsl:call-template name="print_max_problem">
-	        <xsl:with-param name="values" select="./service/status/code"/>
+	        <xsl:with-param name="values" select="service/status/code"/>
 	    </xsl:call-template>
 	</xsl:template>
 </xsl:stylesheet>
