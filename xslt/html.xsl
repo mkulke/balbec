@@ -228,15 +228,16 @@
         <xsl:attribute name="style">font-family:monospace;</xsl:attribute>
         <xsl:if test="$unknown_found='true'">
             <xsl:attribute name="style">background:#999999;font-family:monospace;</xsl:attribute>
-            <xsl:value-of select="service/status/code[. = 3]"/>
+            <xsl:value-of select="service/status[code = 3]/text"/>
         </xsl:if>
         <xsl:if test="$warning_found='true'">
             <xsl:attribute name="style">background:#ffff00;font-family:monospace;</xsl:attribute>
-            <xsl:value-of select="service/status/code[. = 3]"/>
+            <xsl:value-of select="service/status[code = 1]/text"/>
+            <!--<xsl:text>warning</xsl:text>-->
         </xsl:if>
         <xsl:if test="$error_found='true'">
             <xsl:attribute name="style">background:#ff0000;font-family:monospace;</xsl:attribute>
-            <xsl:value-of select="service/status/code[. = 3]"/>
+            <xsl:value-of select="service/status[code = 2]/text"/>
         </xsl:if>
         <xsl:if test="not(($unknown_found) or ($error_found) or ($warning_found))">
             <xsl:attribute name="style">background:#00ff00;</xsl:attribute>
