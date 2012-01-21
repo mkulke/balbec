@@ -1,5 +1,7 @@
 v1.5
 
+- When using html output only the data of the currently visible map is actually loaded and processed. Xml output still contains the data of all maps unless there is a map specified in the http path.
+- Optimized the html stylesheet. Put the css definitions in seperate section.
 - Fixed color code order: error,warning,unknown.
 
 v1.4

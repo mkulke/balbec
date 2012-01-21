@@ -17,15 +17,34 @@ CWD = os.getcwd()
 class BalbecServer(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def do_GET(self):
-    
+
+        pathElements = filter(None, self.path.split('/'))    
         accept = self.headers.getheader('Accept')
 
         try:
     
+            if len(pathElements) == 1:
+                
+                requestedMap = pathElements[0]
+            elif len(pathElements) > 1:
+
+                raise Exception('"' + self.path + '" is not an allowed path.')
+            else:
+            
+                requestedMap = None
+    
             if accept.find('text/html') != -1:
     
                 handler = HtmlHandler(CWD)
-                output = handler.html()
+                
+                if requestedMap == None:
+                
+                    self.send_response(301)
+                    self.send_header("Location", "/" + handler.maps[0].name)
+                    self.end_headers()                                
+                    return
+                
+                output = handler.html(requestedMap)
     
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -34,7 +53,7 @@ class BalbecServer(SimpleHTTPServer.SimpleHTTPRequestHandler):
             else:
     
                 handler = XmlHandler(CWD)
-                output = handler.xml()  
+                output = handler.xml(requestedMap)  
     
                 self.send_response(200)
                 self.send_header('Content-type', 'text/xml')

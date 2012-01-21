@@ -24,6 +24,7 @@ class XmlHandler:
     def __init__(self, documentRoot):
 
         self.documentRoot = documentRoot
+        self.maps, self.backend = self.readConfig()
 
     def readConfig(self):
 
@@ -241,22 +242,35 @@ class XmlHandler:
         
         return assembledGroups
         
-    def xml(self):       
+    def xml(self, requestedMap = None):       
 
-        maps, backend = self.readConfig()
-        dt = backend.getLastCheck()
+        #maps, backend = self.readConfig()
+        dt = self.backend.getLastCheck()
         lastCheck = dt.strftime('%s')
-        dt = backend.getCurrentDateTime()
+        dt = self.backend.getCurrentDateTime()
         currentTime=dt.strftime('%s')        
 
         nagiosNode = etree.Element('nagios', currentTime=str(currentTime), lastCheck=str(lastCheck))
 
-        for map in maps:
+        if requestedMap:
+        
+            foundMaps = [map for map in self.maps if map.name == requestedMap]
+            if len(foundMaps) == 0:
+            
+                raise Exception('Map "' + requestedMap + '" is not defined in the configuration.')
+
+        for map in self.maps:
         
             mapNode = etree.SubElement(nagiosNode, 'map', name = map.name)
             
-            groups = self.getFilteredGroups(backend, map.expression)
-            #hostgroups = self.getFilteredGroups(backend, map.expression)
+            if requestedMap:
+            
+                if map.name != requestedMap:
+                
+                    mapNode.set("skipped", "true")
+                    continue
+            
+            groups = self.getFilteredGroups(self.backend, map.expression)
 
             for group in groups:
 
@@ -266,7 +280,7 @@ class XmlHandler:
                 if len(group.hostObjectIds) == 0:
 
                     continue
-                group.hosts = backend.getHosts(group)
+                group.hosts = self.backend.getHosts(group)
                 
                 if isinstance(group, Hostgroup): groupNode = etree.SubElement(mapNode, "hostgroup", name=group.name)
                 else: groupNode = etree.SubElement(mapNode, "servicegroup", name=group.name)

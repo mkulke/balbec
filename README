@@ -2,7 +2,7 @@ Balbec
 
 Nagios visualization tool.
 
-2011 Magnus Kulke
+2012 Magnus Kulke
 
 Requirements:
 
@@ -113,6 +113,12 @@ Use the browser to view the maps in html ("Accept: text/html" in the header) or
 use xml for further processing:
 
 curl -s http://balbec
+
+To receive only the data of a certain map, specify it in the http path:
+
+curl -s http://balbec/mymap
+
+When using html output, only the data for the currently visible map is loaded from the nagios server.
 
 Legacy configuration:
 
